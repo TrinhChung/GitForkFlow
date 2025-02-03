@@ -1,0 +1,84 @@
+name: Deploy
+
+on:
+  push:
+    # コミットされたブランチに基づいて、それぞれの環境にデプロイを実行する
+    branches:
+      - main
+      - kensho
+      - staging
+      - gokuchi
+  pull_request:
+    branches:
+      - main
+      - kensho
+      - staging
+      - gokuchi
+
+jobs:
+  # 1. テストを実行
+  tests:
+    uses: ./.github/workflows/test-react.yml
+  
+  # 2. ビルドを実行（テスト成功後にのみ進む）
+  build:
+    needs: [tests]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build React app
+        run: npm run build
+
+  # 3. ブランチ別にデプロイ
+  # mainブランチへプッシュ時のみ動く
+  deploy-main:
+    if: github.ref == 'refs/heads/main'
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to main environment
+        run: echo "Deploying to MAIN environment..."
+        # ここにサーバーやホスティングサービスへのデプロイ処理を追加
+        
+  # kenshoブランチへプッシュ時のみ動く
+  deploy-kensho:
+    if: github.ref == 'refs/heads/kensho'
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to kensho environment
+        run: echo "Deploying to KENSHO environment..."
+        # ここにkensho用のデプロイ処理を追加
+
+  # stagingブランチへプッシュ時のみ動く
+  deploy-staging:
+    if: github.ref == 'refs/heads/staging'
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to staging environment
+        run: echo "Deploying to STAGING environment..."
+        # ここにstaging用のデプロイ処理を追加
+  
+  # gokuchiブランチへプッシュ時のみ動く
+  deploy-gokuchi:
+    if: github.ref == 'refs/heads/gokuchi'
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to gokuchi environment
+        run: echo "Deploying to gokuchi environment..."
+        # ここにgokuchi用のデプロイ処理を追加
