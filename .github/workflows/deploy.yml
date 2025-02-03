@@ -7,13 +7,13 @@ on:
       - main
       - kensho
       - staging
-      - gokuchi
+      - koguchi
   pull_request:
     branches:
       - main
       - kensho
       - staging
-      - gokuchi
+      - koguchi
 
 jobs:
   # 1. テストを実行
@@ -45,7 +45,7 @@ jobs:
   # 3. ブランチ別にデプロイ
   # mainブランチへプッシュ時のみ動く
   deploy-main:
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'pull_request' && github.base_ref == 'main'
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -55,7 +55,7 @@ jobs:
         
   # kenshoブランチへプッシュ時のみ動く
   deploy-kensho:
-    if: github.ref == 'refs/heads/kensho'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/kensho' || github.event_name == 'pull_request' && github.base_ref == 'kensho'
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +65,7 @@ jobs:
 
   # stagingブランチへプッシュ時のみ動く
   deploy-staging:
-    if: github.ref == 'refs/heads/staging'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging' || github.event_name == 'pull_request' && github.base_ref == 'staging'
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -73,12 +73,12 @@ jobs:
         run: echo "Deploying to STAGING environment..."
         # ここにstaging用のデプロイ処理を追加
   
-  # gokuchiブランチへプッシュ時のみ動く
-  deploy-gokuchi:
-    if: github.ref == 'refs/heads/gokuchi'
+  # koguchiブランチへプッシュ時のみ動く
+  deploy-koguchi:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/koguchi' || github.event_name == 'pull_request' && github.base_ref == 'koguchi'
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to gokuchi environment
-        run: echo "Deploying to gokuchi environment..."
-        # ここにgokuchi用のデプロイ処理を追加
+      - name: Deploy to koguchi environment
+        run: echo "Deploying to koguchi environment..."
+        # ここにkoguchi用のデプロイ処理を追加
